@@ -1,0 +1,35 @@
+#root {
+  padding: 10px;
+  width: 100%;
+}
+
+#search {
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 2em;
+}
+
+.wrapper {
+  width: 100%;
+  padding: 10px;
+}
+
+.results {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 5px;
+}
+
+.gif {
+  width: 100%;
+  background-size: contain;
+  border-radius: 5px;
+}
