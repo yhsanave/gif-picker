@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { debounce } from "lodash";
 import GifService from "./GifService";
 
-const DEFAULT_COLUMNS = 4;
+const COLUMNS = 4;
 
 export interface GifProps {
   copyUrl: string;
@@ -38,16 +38,29 @@ export default function App() {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const scrollObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        scrollObserver.unobserve(entry.target)
+        searchGifs(search, gifs.length);
+      }
+    });
+  });
+
   const searchGifs = useMemo(
     () =>
-      debounce(
-        (query: string) =>
-          gifService
-            .fetchGifs(query)
-            .then((res) => setGifs(res))
-            .catch((error) => alert(error)),
-        500
-      ),
+      debounce((query: string, offset: number = 0) => {
+        if (query == "") return;
+        setIsLoading(true);
+        gifService
+          .fetchGifs(query, offset)
+          .then((res) => {
+            if (offset == 0) setGifs(res.gifs);
+            else setGifs([...gifs, ...res.gifs]);
+          })
+          .catch((error) => alert(error))
+          .finally(() => setIsLoading(false));
+      }, 500),
     []
   );
 
@@ -58,7 +71,7 @@ export default function App() {
 
   function columnizeGifs(
     gifs: GifProps[],
-    cols: number = DEFAULT_COLUMNS
+    cols: number = COLUMNS
   ): GifProps[][] {
     let res = new Array<GifProps[]>(cols).fill(new Array<GifProps>());
     for (let i = 0; i < cols; i++) {
@@ -81,17 +94,22 @@ export default function App() {
       <div className="results">
         {columns.map((col, i) => (
           <div className="column" key={i}>
-            {col.map((gif) => (
-              <Gif key={gif.copyUrl} {...gif} />
+            {col.map((gif, j) => (
+              <Gif key={j} {...gif} />
             ))}
           </div>
         ))}
       </div>
-      {isLoading && 
-        <div className="loading-container">
-          <div className="spinner"></div>
+      {isLoading && (
+        <div className="loading">
+          <span style={{ animationDelay: "0s" }}></span>
+          <span style={{ animationDelay: "0.2s" }}></span>
+          <span style={{ animationDelay: "0.4s" }}></span>
+          <span style={{ animationDelay: "0.6s" }}></span>
+          <span style={{ animationDelay: "0.8s" }}></span>
+          <span style={{ animationDelay: "1s" }}></span>
         </div>
-      }
+      )}
     </>
   );
 }
