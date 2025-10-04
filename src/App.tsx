@@ -9,6 +9,7 @@ export interface GifProps {
   displayUrl: string;
   height: number;
   width: number;
+  copyCallback?: Function;
 }
 
 function Gif(props: GifProps) {
@@ -20,7 +21,10 @@ function Gif(props: GifProps) {
         autoPlay
         muted
         loop
-        onClick={() => navigator.clipboard.writeText(props.copyUrl)}
+        onClick={() => {
+          navigator.clipboard.writeText(props.copyUrl);
+          if (props.copyCallback !== undefined) props.copyCallback();
+        }}
       >
         <source src={props.displayUrl} type="video/mp4" />
       </video>
@@ -28,23 +32,44 @@ function Gif(props: GifProps) {
   );
 }
 
+type ToastType = "Info" | "Error";
+
+interface ToastProps {
+  message: string;
+  type: ToastType;
+}
+
+function Toast(props: ToastProps) {
+  return (
+    <>
+      <div
+        className={`toast ${
+          props.type == "Info" ? "toast-info" : "toast-error"
+        }`}
+      >
+        <p>
+          <span>{props.type == "Info" ? "ℹ️" : "⚠️"} </span>
+          <b>{props.message}</b>
+        </p>
+      </div>
+    </>
+  );
+}
+
 export default function App() {
   const gifService = new GifService();
+  const urlParams = new URLSearchParams(window.location.search);
 
   const [search, setSearch] = useState("");
   const [gifs, setGifs] = useState<GifProps[]>([]);
   const [columns, setColumns] = useState<GifProps[][]>(
-    new Array<GifProps[]>(3).fill([])
+    new Array<GifProps[]>(COLUMNS)
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const scrollObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        scrollObserver.unobserve(entry.target)
-        searchGifs(search, gifs.length);
-      }
-    });
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastProps, setToastProps] = useState<ToastProps>({
+    message: "",
+    type: "Info",
   });
 
   const searchGifs = useMemo(
@@ -55,10 +80,11 @@ export default function App() {
         gifService
           .fetchGifs(query, offset)
           .then((res) => {
-            if (offset == 0) setGifs(res.gifs);
-            else setGifs([...gifs, ...res.gifs]);
+            setGifs(res.gifs);
           })
-          .catch((error) => alert(error))
+          .catch((error) =>
+            setToastProps({ message: error.message, type: "Error" })
+          )
           .finally(() => setIsLoading(false));
       }, 500),
     []
@@ -67,8 +93,18 @@ export default function App() {
   function handleSearch(e: any) {
     setSearch(e.target.value);
     searchGifs(e.target.value);
+
+    const url = new URL(window.location.toString());
+    url.searchParams.set("search", e.target.value);
+    history.pushState(null, "", url);
   }
 
+  /**
+   * Rearrange array of gifs into columns while maintaining order.
+   * @param {GifProps[]} gifs Array of GifProps to arrange.
+   * @param {number} cols Number of columns.
+   * @returns {GifProps[][]} Columnized array.
+   */
   function columnizeGifs(
     gifs: GifProps[],
     cols: number = COLUMNS
@@ -81,6 +117,29 @@ export default function App() {
   }
 
   useEffect(() => setColumns(columnizeGifs(gifs)), [gifs]);
+
+  useEffect(() => {
+    if (toastProps.message == "") return;
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  }, [toastProps]);
+
+  useEffect(() => {
+    let s = urlParams.get("search");
+    if (!!s) {
+      setSearch(s);
+      searchGifs(s);
+      return;
+    }
+    setIsLoading(true);
+    gifService
+      .fetchTrending()
+      .then((res) => setGifs(res.gifs))
+      .catch((error) =>
+        setToastProps({ message: error.message, type: "Error" })
+      )
+      .finally(() => setIsLoading(false));
+  }, []);
 
   return (
     <>
@@ -95,7 +154,16 @@ export default function App() {
         {columns.map((col, i) => (
           <div className="column" key={i}>
             {col.map((gif, j) => (
-              <Gif key={gif.copyUrl} {...gif} />
+              <Gif
+                key={gif.copyUrl}
+                {...gif}
+                copyCallback={() =>
+                  setToastProps({
+                    message: "Copied to clipboard!",
+                    type: "Info",
+                  })
+                }
+              />
             ))}
           </div>
         ))}
@@ -110,6 +178,7 @@ export default function App() {
           <span style={{ animationDelay: "1s" }}></span>
         </div>
       )}
+      {showToast && <Toast {...toastProps} />}
     </>
   );
 }

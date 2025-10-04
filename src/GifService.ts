@@ -1,6 +1,7 @@
 import { GifProps } from "./App";
 
 const GIPHY_API_SEARCH_URL = "https://api.giphy.com/v1/gifs/search?";
+const GIPHY_API_TRENDING_URL = "https://api.giphy.com/v1/gifs/trending?";
 const GIPHY_API_KEY = "W4lQmuX5pTahX4biD7WvfiCHmOKteBZl"; // GIPHY's API docs explicitly require that API calls be made from the client side which requires exposing the API key
 
 interface GiphyResponse {
@@ -39,6 +40,26 @@ export default class GifService {
       api_key: GIPHY_API_KEY,
     });
     let res = await fetch(GIPHY_API_SEARCH_URL + params);
+    if (!res.ok) {
+      if (res.status == 429)
+        throw Error("API Limit Reached. Please try again later.");
+      throw Error(`Error fetching GIFs: ${res.status}`);
+    }
+    let body = await res.json();
+    let resp: GiphyResponse = {
+      gifs: body.data.map((gif: any, i: number) => this.parseGif(gif)),
+      meta: body.meta,
+      pagination: body.pagination,
+    };
+    return resp;
+  }
+
+  async fetchTrending() {
+    let params = new URLSearchParams({
+      limit: "12", // the requirements doc says 3 random gifs but it looks better with my layout if there are more so I did more
+      api_key: GIPHY_API_KEY,
+    });
+    let res = await fetch(GIPHY_API_TRENDING_URL + params);
     if (!res.ok) {
       if (res.status == 429)
         throw Error("API Limit Reached. Please try again later.");

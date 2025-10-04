@@ -68,3 +68,25 @@
     transform: scale(5);
   }
 }
+
+/* Toast styles */
+.toast {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  margin: 20px;
+  padding: 0px 20px;
+  border-radius: 5px;
+}
+
+.toast-info {
+  background-color: lightblue;
+  border: blue 2px solid;
+  color: blue;
+}
+
+.toast-error {
+  background-color: lightpink;
+  border: red 2px solid;
+  color: red;
+}
