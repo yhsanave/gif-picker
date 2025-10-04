@@ -95,7 +95,7 @@ export default function App() {
         {columns.map((col, i) => (
           <div className="column" key={i}>
             {col.map((gif, j) => (
-              <Gif key={j} {...gif} />
+              <Gif key={gif.copyUrl} {...gif} />
             ))}
           </div>
         ))}
