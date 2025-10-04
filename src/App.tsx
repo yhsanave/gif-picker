@@ -21,6 +21,7 @@ function Gif(props: GifProps) {
         autoPlay
         muted
         loop
+        disablePictureInPicture
         onClick={() => {
           navigator.clipboard.writeText(props.copyUrl);
           if (props.copyCallback !== undefined) props.copyCallback();

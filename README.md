@@ -20,6 +20,10 @@ I initially planned to have a cache feature to reduce API calls and allow users 
 
 Lastly, I would have set up a proxy server to forward the requests with the API key, rather than doing it directly from the client side. Doing it from the client side exposes the API key, which in a more sensitive application could be a major security vulnerability. GIPHY's terms of service explicitly forbid this and require that all API calls be made from the client side.
 
+Other than the limitations imposed by the GIPHY API, I would have liked to have the number of columns adjust dynamically to fit the screen size, but by the time I thought to do that it would have required rewriting a big chunk of the app and it just didn't seem worth it for such a minor benefit.
+
+Also I tested it in Opera GX and it had flashing buttons popping up when hovering over the GIFs and I couldn't figure out how to get rid of them. This doesn't happen in Edge, Chrome, or Firefox.
+
 ## Credits
 
 [Search](https://icons8.com/icon/112468/search) icon by [Icons8](https://icons8.com)
