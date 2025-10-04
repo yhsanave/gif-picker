@@ -149,6 +149,7 @@ export default function App() {
         placeholder="Search for a GIF..."
         value={search}
         onChange={handleSearch}
+        autoComplete="off"
       />
       <div className="results">
         {columns.map((col, i) => (
