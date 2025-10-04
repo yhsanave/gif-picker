@@ -1,6 +1,8 @@
 # GIF Picker
 
-A simple GIF picker using the GIPHY API. Built for a technical assessment. View the site at <https://yhsanave.github.io/gif-picker/>
+A simple GIF picker using the GIPHY API. Built for a job interview.
+
+View the site at <https://yhsanave.github.io/gif-picker/>
 
 ## Running
 
@@ -8,7 +10,7 @@ To run in developer mode: `npm run dev`
 
 To build for production: `npm run build`
 
-To deploy to Github Pages: `npm run deploy`
+To deploy to GitHub Pages: `npm run deploy`
 
 ## Notes
 
@@ -22,7 +24,11 @@ Lastly, I would have set up a proxy server to forward the requests with the API 
 
 Other than the limitations imposed by the GIPHY API, I would have liked to have the number of columns adjust dynamically to fit the screen size, but by the time I thought to do that it would have required rewriting a big chunk of the app and it just didn't seem worth it for such a minor benefit.
 
-Also I tested it in Opera GX and it had flashing buttons popping up when hovering over the GIFs and I couldn't figure out how to get rid of them. This doesn't happen in Edge, Chrome, or Firefox.
+## Known Issues
+
+In Opera GX it had flashing buttons popping up when hovering over the GIFs and I couldn't figure out how to get rid of them. This doesn't happen in Edge, Chrome, or Firefox.
+
+When testing on mobile, I had some issues with the GIFs loading. On Firefox, only a few GIFs would load, sometimes none at all. On Chrome they loaded fine, but when scrolling the GIFs stop playing, which I assume is due to some kind of performance optimization.
 
 ## Credits
 
